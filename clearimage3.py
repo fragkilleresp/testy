@@ -1,4 +1,4 @@
-__author__ = 'Owner'
+__author__ = 'Owner is the best'
 import cv2 
 import sys
 import numpy as np
