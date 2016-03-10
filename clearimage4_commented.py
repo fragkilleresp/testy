@@ -1,4 +1,5 @@
 __author__ = 'Owner'
+#import libraries
 import cv2 
 import sys
 import numpy as np
@@ -7,20 +8,32 @@ from PIL import Image
 #setting up the cascade path for windows and mac ( will be different depending on the computer)
 cascadepath = "C:\\Users\Owner\Anaconda3\envs\\face\Library\etc\haarcascades/haarcascade_frontalface_default.xml"
 macpath = "/anaconda/envs/face/share/OpenCV/haarcascades/haarcascade_frontalface_default.xml" 
-#recognizer and cascadesetup
+#create a cascade classifier object.
 faceCascade = cv2.CascadeClassifier(macpath)
+#create a FisherFaceRecognizer Object
 recognizer = cv2.createFisherFaceRecognizer()
-#function that grabs images(of faces) and returns 3 lisrs, one containing the labels, the names, and the last one is a list of arrays containing the pictures themselves
+#path is where the folder with the faces used to train the recognizer is located. Since the .pu file is in the same place as the folder, stating just the name of the folder is more than enough
+path = "faces"
+#Define a function that trains the Fisher Face recognizer. It takes the path of where the faces are and trains the recognizer with said faces.
 def getimagesandlabels(path):
+    #gets the directory of each face
     pathsandlabels = [os.path.join(path,f) for f in os.listdir(path)]
     print(pathsandlabels)
+    #files is a list of matrices that contain the RGB values of the pictures
     files = []
+    #Labels is a list of the label of each person.Each person gets a unique label (e.g Michael could get #1 while Jon gets #2)
     labels = []
+    #Namess is a list of the names of the people that were analyzed.
     namess = []
+    #name dict is a dictionary that cotains the label of the person as the key and his/her name as the value.
     namedict = {}
+    #Counter is used to set up the label
     counter = 0
+    #for loop that acceses each image in the faces folder
     for file in pathsandlabels:
+        #opens the image and converts it to greyscale
         photo = Image.open(file).convert('L')
+        #Converts photo into an array in uint8, which is consituted of values from 0-255, the RGB values.
         image = np.array(photo, 'uint8')
         #resize pictures
         resized = photo.resize
@@ -48,7 +61,6 @@ def getimagesandlabels(path):
 #creates a dictionary
     
 #setting up path for face identification
-path = "faces"
 files, labels,namess,namedict = getimagesandlabels(path)
 #training the recognizer with the faces folder
 recognizer.train(files,np.array(labels))
