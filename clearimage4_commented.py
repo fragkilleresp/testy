@@ -37,20 +37,26 @@ def getimagesandlabels(path):
         image = np.array(photo, 'uint8')
         #resize pictures
         resized = photo.resize
+        #run the detectMultiscale method, which will return an (x,y,h,w) value for each face analized in the given image
         isthereface = faceCascade.detectMultiScale(image,scaleFactor=1.3,
         minNeighbors=3,
         minSize=(80, 80))
+        #analyzes each found face
         for (x,y,h,w) in isthereface:
+            #converts array to image, resizes to 600x600, converts back to array
             current = image[y:y+h,x:x+w]
             convert = Image.fromarray(current)
             convert = convert.resize((600,600))
             current = np.array(convert,'uint8')
             cv2.imshow("Analyzing Faces...",current)
+            #appends array to list
             files.append(current)
+            #checks if the user (name) is already in the namess list. If it is not, it will increase the counter (label) by 1
             if os.path.split(file)[1].split(".")[0] in namess:
                 pass
             else:
                 counter+=1
+            #appends label, name to their lists. Adds label as key and name as value to the namedict dictionary.
             namess.append(os.path.split(file)[1].split(".")[0])
             namedict[str(counter)] = os.path.split(file)[1].split(".")[0]
             labels.append(counter)
@@ -58,20 +64,21 @@ def getimagesandlabels(path):
         print(counter)
     print namess, namedict
     return files,labels,namess,namedict
-#creates a dictionary
-    
-#setting up path for face identification
+#set variables as values of getimagesandlabels()
 files, labels,namess,namedict = getimagesandlabels(path)
 #training the recognizer with the faces folder
 recognizer.train(files,np.array(labels))
 print(np.array(labels))
+#opens webcam
 video_capture = cv2.VideoCapture(0)
+#function to recognize faces and identify who they are
 while True:
     # Capture frame-by-frame
 
     ret, frame = video_capture.read()
-
+    #convert current frame to grayscale
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    #run the detectmultiscale method
     faces = faceCascade.detectMultiScale(
         gray,
         scaleFactor=1.5,
@@ -83,19 +90,22 @@ while True:
 
     # Draw a rectangle around the faces
     for (x, y, w, h) in faces:
+        #same as above
         current = gray[y:y+h,x:x+w]
         convert = Image.fromarray(current)
         convert = convert.resize((600,600))
-        current = np.array(convert,'uint8')       
+        current = np.array(convert,'uint8') 
+        #the predict method from the recognizer will give rb (who the person is, by label) and a confidence level
         rb, confidence = recognizer.predict(current)
         print "Predicted",rb,"With COnfidence of...",confidence
         cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
         if confidence >=30:
+            #this is where the dictionary is useful (link label to name)
             cv2.putText(frame,namedict[str(rb)],(x,y),cv2.FONT_HERSHEY_COMPLEX
 ,3,(250,0,100))
     # Display the resulting frame
     cv2.imshow('Video', frame)
-
+    #program will exit if you press q
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
