@@ -1,0 +1,20 @@
+__author__ = 'Owner'
+import time
+import PIL
+import cv2
+cap = cv2.VideoCapture(0)
+counter=0
+name=str(raw_input("file name "))
+while cap.isOpened():
+    ret,frame = cap.read()
+    if ret:
+        cv2.imshow('frame',frame)
+        filename = name +"."+str(counter)+".png"
+        cv2.imwrite(filename,frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+        counter+=1
+    else:
+        break
+cap.release()
+cv2.destroyAllWindows()
